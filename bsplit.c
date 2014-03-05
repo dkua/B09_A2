@@ -1,35 +1,54 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <unistd.h>
 
 int main(int argc, char **argv) {
+    int c;
     int amount = 10;
     FILE *file;
-    FILE *new_file;
-    int c;
 
-    if (argc < 2) {
-        fprintf(stderr, "usage: %s [file] [option]\n", argv[0]);
-        return 1;
-    } else if (argc >= 2) {
-        while (--argc > 0 && (*++argv)[0] == '-') {
-            while ((c = *++argv[0])) {
-                switch (c) {
-                    case 'b':
-                        amount = *argv[argc];
-                        break;
-                }
-            }
+    while ((c = getopt(argc, argv, "b:")) != -1) {
+        switch (c) {
+            case 'b':
+                amount = atoi(optarg);
+                break;
         }
     }
 
-    unsigned char buffer[amount];
+    if (argc < 2) {
+        fprintf(stderr, "usage: %s file [-b bytes]\n", argv[0]);
+        return(1);
+    }
 
-    file = fopen(argv[1], "rb");
-    fread(buffer, sizeof(buffer)+1, 1, file);
+    if ((file = fopen(argv[1], "rb")) == NULL) {
+        perror(argv[1]);
+        return(1);
+    }
 
-    new_file = fopen("xaa", "wb");
-    fwrite(buffer, sizeof(buffer)+1, 1, new_file);
+    char name[4] = {'x', 'a', 'a', '\0'};
+    int numfiles = 0;
+    while (1) {
+        char buffer[amount];
+        FILE *newfile;
+        if (fread(buffer, sizeof(buffer), 1, file) == 0) {
+            break;
+        }
+        if (numfiles < 676) {
+            name[1] = numfiles / 26 + 'a';
+            name[2] = numfiles % 26 + 'a';
+        } else {
+            break;
+        }
+        if ((newfile = fopen(name, "wb")) == NULL) {
+            perror(name);
+            exit(1);
+        }
+        fwrite(buffer, sizeof(buffer), 1, newfile);
+        fclose(newfile);
+        numfiles++;
+    }
 
-    return 0;
+    fclose(file);
+
+    return(0);
 }
