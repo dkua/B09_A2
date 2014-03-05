@@ -12,6 +12,9 @@ int main(int argc, char **argv) {
             case 'b':
                 amount = atoi(optarg);
                 break;
+            case '?':
+                fprintf(stderr, "usage: %s file [-b bytes]\n", argv[0]);
+                return(1);
         }
     }
 
