@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 int main(int argc, char **argv) {
     FILE *file;
 
     if (argc < 2) {
-        fprintf(stderr, "usage: %s file [-b bytes]\n", argv[0]);
+        fprintf(stderr, "usage: %s file ...\n", argv[0]);
         return(1);
     }
 
