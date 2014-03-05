@@ -14,11 +14,14 @@ int main(int argc, char **argv) {
             case 'p':
                 create_missing = 0;
                 break;
+            case '?':
+                fprintf(stderr, "usage: %s [-p] path ...\n", argv[0]);
+                return(1);
         }
     }
 
     if (argc < 2) {
-        fprintf(stderr, "usage: %s [files]\n", argv[0]);
+        fprintf(stderr, "usage: %s [-p] path ...\n", argv[0]);
         return(1);
     }
 
