@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 int main(int argc, char **argv) {
     FILE *file;
@@ -18,17 +17,20 @@ int main(int argc, char **argv) {
         }
 
         char ch;
-        while (!feof(file)) {
-            ch = fgetc(file);
-            if ((ch == '>') && (ch != EOF)) {
-                ch = fgetc(file);
-                while ((ch != '<') && (ch != EOF)) {
-                    if (!isspace(ch)) {
-                        printf("%c", ch);
-                    }
-                    ch = fgetc(file);
+        int nonempty;
+        while ((ch = fgetc(file)) != EOF) {
+            if (ch == '>') {
+                nonempty = 0;
+                while ((ch = fgetc(file)) != EOF) {
                     if (ch == '<') {
-                        printf("\n");
+                        if (nonempty != 0) {
+                            printf("\n");
+                        }
+                        break;
+                    }
+                    if (ch != '\n') {
+                        printf("%c", ch);
+                        nonempty = 1;
                     }
                 }
             }
@@ -37,3 +39,4 @@ int main(int argc, char **argv) {
 
     return(0);
 }
+
