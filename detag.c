@@ -1,41 +1,41 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
+
 
 int main(int argc, char **argv) {
+    int i;
     FILE *file;
+    extern void process(FILE *file);
 
-    if (argc < 2) {
-        fprintf(stderr, "usage: %s file ...\n", argv[0]);
-        return(1);
-    }
-
-    for (char **arg = ++argv; *arg; ++arg) {
-        if ((file = fopen(*arg, "r")) == NULL) {
-            perror(*arg);
-            return(1);
-        }
-
-        char ch;
-        int nonempty;
-        while ((ch = fgetc(file)) != EOF) {
-            if (ch == '>') {
-                nonempty = 0;
-                while ((ch = fgetc(file)) != EOF) {
-                    if (ch == '<') {
-                        if (nonempty != 0) {
-                            printf("\n");
-                        }
-                        break;
-                    }
-                    if (ch != '\n') {
-                        printf("%c", ch);
-                        nonempty = 1;
-                    }
-                }
+    if (argc == 1) {
+        process(stdin);
+    } else {
+        for (i = 1; i < argc; i++) {
+            if (strcmp(argv[i], "-") == 0) {
+                process(stdin);
+            } else if ((file = fopen(argv[i], "r")) == NULL) {
+                perror(argv[i]);
+                return(1);
+            } else {
+                process(file);
+                fclose(file);
             }
         }
     }
-
     return(0);
 }
 
+
+void process(FILE *file) {
+    int ch;
+    while ((ch = getc(file)) != EOF) {
+        if (ch == '>') {
+            while ((ch = fgetc(file)) != EOF) {
+                if (ch == '<') {
+                    break;
+                }
+                putchar(ch);
+            }
+        }
+    }
+}
